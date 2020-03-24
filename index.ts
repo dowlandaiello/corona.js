@@ -86,14 +86,17 @@ export const dumpURLForDate = (d: Date): URL => {
     );
 };
 
+/**
+ * Metadata associated with a JHU data dump. This includes the last timestamp associated with an update action targeting this dump, the dump's latitude and longitude, the country and--optionally--the county and province.
+ */
 export interface DumpMetadata {
     lastUpdated: Date;
 
-    latitude;
-    longitude: number;
+    longitude?;
+    latitude?: number;
 
-    county?: string;
-    province;
+    county?;
+    province?: string;
     country: string;
 }
 
