@@ -74,16 +74,14 @@ export const formatForDate = (d: Date): Format => {
  *
  * @param d {Date} the date for which a URL pointing to the corresponding JHU CSV file should be constructed
  */
-export const dumpURLForDate = (d: Date): URL => {
+export const dumpURLForDate = (d: Date): string => {
     const dateFormats = [{ month: "2-digit" }, { day: "2-digit" }, { year: "numeric" }];
 
     const stringDate: string = dateFormats
         .map((dateFormat) => new Intl.DateTimeFormat("en", dateFormat).format(d))
         .join("-");
 
-    return new URL(
-        `https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/${stringDate}.csv`
-    );
+    return `https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/${stringDate}.csv`;
 };
 
 /**
@@ -111,8 +109,20 @@ export interface Dump {
     recovered: number;
 }
 
-export interface DumpRetrievalConfig {}
+export class DumpRetrievalConfig {
+    format?: Format;
 
+    constructor(format?: Format) {
+        if (format) {
+            this.format = format;
+        }
+    }
+}
+
+/*
 export const retrieveDump = async (d: Date, config?: DumpRetrievalConfig): Dump => {
-    await axios.get("");
+    const rawDump = await axios.get(dumpURLForDate(d));
+
+
 };
+*/

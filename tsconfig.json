@@ -4,7 +4,8 @@
         "module": "CommonJS",
         "target": "ES5",
         "declaration": true,
-        "outDir": "./dist"
+        "outDir": "./dist",
+        "lib": ["ES6"]
     },
     "include": ["src/**/*"]
 }
