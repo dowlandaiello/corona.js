@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Result, Ok, Err } from "@usefultools/monads";
 
 /**
  * Represents a CSV schema, where a "format" is defined by the date when the format was established, along with the indexes of each field contained in the CSV file.
@@ -57,16 +58,25 @@ export const CountyAwareFormat: Format = {
 const formats: Format[] = [LegacyFormat, GeographicallyAwareFormat, CountyAwareFormat];
 
 /**
+ * A type representing the inability
+ */
+export interface NoApplicableTypeError {
+    uncoveredDate: Date;
+}
+
+/**
  * Gets the format associated with a particular timestamp.
  *
  * @param d {Date} the date for which data should be fetched from the JHU repo
  */
-export const formatForDate = (d: Date): Format => {
+export const formatForDate = (d: Date): Result<Format, NoApplicableTypeError> => {
     for (const format of Array.from(formats).reverse()) {
-        if (d <= format.dateEffective) {
-            return format;
+        if (format.dateEffective <= d) {
+            return Ok(format);
         }
     }
+
+    return Err({ uncoveredDate: d });
 };
 
 /**
