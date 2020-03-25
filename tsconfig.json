@@ -5,7 +5,7 @@
         "target": "ES5",
         "declaration": true,
         "outDir": "./dist",
-        "lib": ["ES6"]
+        "lib": ["ES6", "DOM"]
     },
     "include": ["src/**/*"]
 }
