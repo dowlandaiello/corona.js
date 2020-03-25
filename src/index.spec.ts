@@ -6,6 +6,7 @@ import {
     GeographicallyAwareFormat,
     CountyAwareFormat,
     dumpURLForDate,
+    retrieveDump,
 } from "./index";
 import { Result } from "@usefultools/monads";
 import { expect } from "chai";
@@ -55,4 +56,8 @@ describe("dumpURLForDate", () => {
         const matchPattern = /\d{2}-\d{2}-\d{4}/;
         expect(dumpURL.match(matchPattern).length).to.be.greaterThan(0);
     });
+});
+
+describe("retrieveDump", () => {
+    retrieveDump(new Date());
 });

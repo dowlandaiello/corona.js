@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { Result, Ok, Err } from "@usefultools/monads";
 
 /**
@@ -67,7 +67,7 @@ export interface NoApplicableTypeError {
 /**
  * Gets the format associated with a particular timestamp.
  *
- * @param d {Date} the date for which data should be fetched from the JHU repo
+ * @param d the date for which data should be fetched from the JHU repo
  */
 export const formatForDate = (d: Date): Result<Format, NoApplicableTypeError> => {
     for (const format of Array.from(formats).reverse()) {
@@ -82,7 +82,7 @@ export const formatForDate = (d: Date): Result<Format, NoApplicableTypeError> =>
 /**
  * Constructs a URL representing a potentially valid CSV file corresponding to such a date.
  *
- * @param d {Date} the date for which a URL pointing to the corresponding JHU CSV file should be constructed
+ * @param d the date for which a URL pointing to the corresponding JHU CSV file should be constructed
  */
 export const dumpURLForDate = (d: Date): string => {
     const dateFormats = [{ month: "2-digit" }, { day: "2-digit" }, { year: "numeric" }];
@@ -109,9 +109,9 @@ export interface DumpMetadata {
 }
 
 /**
- * An individual entry in the JHU data dump repo.
+ * An individual entry in a JHU data dump, where a single dump is defined as an entire CSV file hosted by JHU. In other words, an individual dump entry can be associated with a particular place in a larger dump.
  */
-export interface Dump {
+export interface DumpEntry {
     metadata: DumpMetadata;
 
     confirmed: number;
@@ -119,6 +119,21 @@ export interface Dump {
     recovered: number;
 }
 
+/**
+ * An entry in the dump tree, accompanied by all of the potential subchildren of the node, comprised of dump entries themselves.
+ */
+export interface DumpNode extends DumpMetadata {
+    children: { [identifier: string]: DumpNode };
+}
+
+/**
+ * An entire data dump from the Johns Hopkins COVID-19 data repository on github.
+ */
+type Dump = DumpNode;
+
+/**
+ * A configuration for the retrieveDump helper method.
+ */
 export class DumpRetrievalConfig {
     format?: Format;
 
@@ -129,10 +144,45 @@ export class DumpRetrievalConfig {
     }
 }
 
-/*
-export const retrieveDump = async (d: Date, config?: DumpRetrievalConfig): Dump => {
-    const rawDump = await axios.get(dumpURLForDate(d));
+/**
+ * Any error resultant from an axios request.
+ */
+export interface RequestFailedError {
+    url: string;
+    error: AxiosError;
+}
 
+/**
+ * Any error that may result from a failed request.
+ */
+export type DumpRetrievalError = NoApplicableTypeError | RequestFailedError;
 
+/**
+ * Parses a COVID-19 data dump for the specified date.
+ *
+ * @param d the date for which the data dump should be parsed
+ * @param config a configuration for how data should be parsed
+ */
+export const retrieveDump = (d: Date, config?: DumpRetrievalConfig): Promise<Result<string, DumpRetrievalError>> => {
+    const dumpURL = dumpURLForDate(d);
+
+    return axios
+        .get(dumpURL)
+        .then((data: AxiosResponse) => {
+            let format: Format = config && config.format;
+            formatForDate(d).match({
+                ok: (val: Format) => {
+                    format = val;
+                },
+                err: (val: NoApplicableTypeError) => {
+                    if (config && config.format) return Err(val);
+                },
+            });
+
+            for (const line of data.data.split("\n").slice(1)) {
+            }
+
+            return Ok("test");
+        })
+        .catch((e: AxiosError) => Err({ url: dumpURL, error: e }));
 };
-*/
