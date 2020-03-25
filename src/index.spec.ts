@@ -5,6 +5,7 @@ import {
     NoApplicableTypeError,
     GeographicallyAwareFormat,
     CountyAwareFormat,
+    dumpURLForDate,
 } from "./index";
 import { Result } from "@usefultools/monads";
 import { expect } from "chai";
@@ -44,5 +45,14 @@ describe("formatForDate", () => {
 
         format = formatForDate(new Date());
         test(format, CountyAwareFormat);
+    });
+});
+
+describe("dumpURLForDate", () => {
+    it("should return a string containing a properly formatted date, matchable via a guarding regular expression (MM-DD-YYYY)", () => {
+        const dumpURL = dumpURLForDate(new Date());
+
+        const matchPattern = /\d{2}-\d{2}-\d{4}/;
+        expect(dumpURL.match(matchPattern).length).to.be.greaterThan(0);
     });
 });
