@@ -169,17 +169,23 @@ export const retrieveDump = (d: Date, config?: DumpRetrievalConfig): Promise<Res
     return axios
         .get(dumpURL)
         .then((data: AxiosResponse) => {
-            let format: Format = config && config.format;
-            formatForDate(d).match({
-                ok: (val: Format) => {
-                    format = val;
-                },
-                err: (val: NoApplicableTypeError) => {
-                    if (config && config.format) return Err(val);
-                },
-            });
+            let format: Format = config.format || null;
 
-            for (const line of data.data.split("\n").slice(1)) {
+            if (format === null) {
+                formatForDate(d).match({
+                    ok: (val: Format) => {
+                        format = val;
+                    },
+                    err: (val: NoApplicableTypeError) => {
+                        if (config && config.format) return Err(val);
+                    },
+                });
+            }
+
+            for (const line of data.data.split("\n").splice(1)) {
+                for (const field of Object.keys(format.fields)) {
+                    const value = line[format.fields[field]];
+                }
             }
 
             return Ok("test");
