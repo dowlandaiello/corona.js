@@ -23,7 +23,7 @@
     },
     "dependencies": {
         "@usefultools/monads": "^3.0.3",
-        "axios": "^0.19.2"
+        "axios": "^0.21.1"
     },
     "scripts": {
         "test": "mocha -r ts-node/register src/**/*.spec.ts"
